@@ -7,6 +7,13 @@ struct MainWindowView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                // Auth section — show sign-in if not authenticated
+                if !model.isAuthenticated {
+                    AuthView(supabaseClient: model.supabaseClient) {
+                        model.authState = .authenticated
+                    }
+                }
+
                 header
 
                 if model.currentSession == nil {
@@ -20,6 +27,23 @@ struct MainWindowView: View {
                 }
 
                 settingsSection
+
+                // Account section
+                if model.isAuthenticated {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Account")
+                            .font(.headline)
+                        HStack {
+                            Label("Signed in", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            Spacer()
+                            Button("Sign Out") {
+                                model.supabaseClient.signOut()
+                                model.authState = .unauthenticated
+                            }
+                        }
+                    }
+                }
             }
             .padding(24)
         }

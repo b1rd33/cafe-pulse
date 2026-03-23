@@ -50,6 +50,11 @@ struct MenuBarContentView: View {
 
             Divider().padding(.vertical, 4)
 
+            // Sync status
+            if model.isAuthenticated {
+                syncStatusRow
+            }
+
             MenuBarButton(title: "Quit CafePulse", icon: "xmark.circle") {
                 NSApplication.shared.terminate(nil)
             }
@@ -144,6 +149,31 @@ struct MenuBarContentView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private var syncStatusRow: some View {
+        HStack(spacing: 6) {
+            switch model.syncManager.syncState {
+            case .synced:
+                Image(systemName: "checkmark.icloud").foregroundStyle(.green)
+                Text("Synced").foregroundStyle(.green)
+            case .syncing:
+                Image(systemName: "arrow.triangle.2.circlepath.icloud").foregroundStyle(.blue)
+                Text("Syncing...").foregroundStyle(.blue)
+            case .error(let msg):
+                Image(systemName: "exclamationmark.icloud").foregroundStyle(.red)
+                Text(msg).foregroundStyle(.red).lineLimit(1)
+            case .offline:
+                Image(systemName: "icloud.slash").foregroundStyle(.secondary)
+                Text("Offline").foregroundStyle(.secondary)
+            case .idle:
+                Image(systemName: "icloud").foregroundStyle(.secondary)
+                Text("Ready").foregroundStyle(.secondary)
+            }
+        }
+        .font(.caption2)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 2)
     }
 
     private func crowdLevelText(_ flatness: Float) -> String {

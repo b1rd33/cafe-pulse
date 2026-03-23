@@ -47,10 +47,18 @@ struct CafePulseApp: App {
                     NSApp.setActivationPolicy(.regular)
                 }
                 .onDisappear {
-                    // Go back to menu-bar-only when window closes
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         if !model.isMainWindowVisible {
                             NSApp.setActivationPolicy(.accessory)
+                        }
+                    }
+                }
+                .onOpenURL { url in
+                    // Handle cafepulse://auth/callback#access_token=...&refresh_token=...
+                    if model.supabaseClient.handleCallback(url: url) {
+                        model.authState = .authenticated
+                        Task {
+                            await model.syncManager.drainUnsyncedQueue()
                         }
                     }
                 }

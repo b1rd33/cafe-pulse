@@ -3,6 +3,12 @@ import Combine
 import Foundation
 import UniformTypeIdentifiers
 
+enum AuthState: Equatable {
+    case unknown
+    case authenticated
+    case unauthenticated
+}
+
 @MainActor
 final class AppModel: ObservableObject {
     @Published private(set) var sessions: [Session] = []
@@ -19,18 +25,25 @@ final class AppModel: ObservableObject {
     @Published var lastAudioSample: AudioSample?
     @Published private(set) var isSampling = false
     @Published var isMainWindowVisible = false
+    @Published var authState: AuthState = .unknown
 
     var presentCrowdPrompt: (() -> Void)?
     var dismissCrowdPrompt: (() -> Void)?
+
+    let supabaseClient = SupabaseClient()
+    private(set) lazy var syncManager = SyncManager(client: supabaseClient, appModel: self)
 
     private let store = LocalStore()
     private let exporter = CSVExporter()
     private let audioEngine: AudioCaptureEngine
     private var crowdPromptTimer: Timer?
 
+    var isAuthenticated: Bool { authState == .authenticated }
+
     init() {
         microphonePermission = AudioCaptureEngine.currentPermissionState()
         audioEngine = AudioCaptureEngine(sampleInterval: AppSettings.default.sampleIntervalSeconds)
+        authState = supabaseClient.isAuthenticated ? .authenticated : .unauthenticated
 
         audioEngine.onMeasurement = { [weak self] measurement in
             Task { @MainActor in
@@ -46,6 +59,10 @@ final class AppModel: ObservableObject {
 
         Task {
             await loadSnapshot()
+            // Drain unsynced records from previous sessions on launch
+            if isAuthenticated && hasUnsyncedRecords {
+                await syncManager.drainUnsyncedQueue()
+            }
         }
     }
 
@@ -160,11 +177,18 @@ final class AppModel: ObservableObject {
 
         if let index = sessions.firstIndex(where: { $0.id == activeSession.id }) {
             sessions[index].endedAt = .now
+            sessions[index].syncedAt = nil  // Force re-sync to update endedAt remotely
         }
 
         currentSession = nil
         statusMessage = "Session ended."
         persistCurrentState()
+
+        // Final sync flush
+        if isAuthenticated {
+            Task { await syncManager.syncNow() }
+            syncManager.stopPeriodicSync()
+        }
     }
 
     func presentCrowdEstimatePrompt() {
@@ -316,6 +340,11 @@ final class AppModel: ObservableObject {
 
             scheduleCrowdPromptTimer()
             persistCurrentState()
+
+            // Start background sync if authenticated
+            if isAuthenticated {
+                syncManager.startPeriodicSync()
+            }
         } catch {
             isSampling = false
             statusMessage = "Failed to start microphone sampling: \(error.localizedDescription)"
