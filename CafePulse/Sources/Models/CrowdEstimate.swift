@@ -33,18 +33,21 @@ struct CrowdEstimate: Identifiable, Codable, Hashable, Sendable {
     let timestamp: Date
     var fullness: CrowdFullness
     var peopleCount: Int?
+    var syncedAt: Date?
 
     init(
         id: UUID = UUID(),
         sessionId: UUID,
         timestamp: Date = .now,
         fullness: CrowdFullness,
-        peopleCount: Int? = nil
+        peopleCount: Int? = nil,
+        syncedAt: Date? = nil
     ) {
         self.id = id
         self.sessionId = sessionId
         self.timestamp = timestamp
         self.fullness = fullness
         self.peopleCount = peopleCount
+        self.syncedAt = syncedAt
     }
 }

@@ -20,6 +20,7 @@ struct AudioSample: Identifiable, Codable, Hashable, Sendable {
     /// Temporal variance of voice energy across FFT windows.
     /// Higher = more crowd activity (overlapping conversations).
     let voiceBandVariance: Float
+    var syncedAt: Date?
 
     init(
         id: UUID = UUID(),
@@ -31,7 +32,8 @@ struct AudioSample: Identifiable, Codable, Hashable, Sendable {
         peakDB: Float,
         spectralFlatness: Float = 0,
         selfTalkDetected: Bool = false,
-        voiceBandVariance: Float = -120
+        voiceBandVariance: Float = -120,
+        syncedAt: Date? = nil
     ) {
         self.id = id
         self.sessionId = sessionId
@@ -43,5 +45,6 @@ struct AudioSample: Identifiable, Codable, Hashable, Sendable {
         self.spectralFlatness = spectralFlatness
         self.selfTalkDetected = selfTalkDetected
         self.voiceBandVariance = voiceBandVariance
+        self.syncedAt = syncedAt
     }
 }

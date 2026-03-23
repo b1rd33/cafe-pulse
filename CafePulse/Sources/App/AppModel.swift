@@ -54,6 +54,52 @@ final class AppModel: ObservableObject {
         audioEngine.stop()
     }
 
+    // MARK: - Sync Queries
+
+    var unsyncedSessions: [Session] {
+        sessions.filter { $0.syncedAt == nil }
+    }
+
+    var sessionsNeedingUpdate: [Session] {
+        sessions.filter { $0.syncedAt != nil && $0.endedAt != nil && $0.syncedAt! < $0.endedAt! }
+    }
+
+    var unsyncedAudioSamples: [AudioSample] {
+        audioSamples.filter { $0.syncedAt == nil }
+    }
+
+    var unsyncedCrowdEstimates: [CrowdEstimate] {
+        crowdEstimates.filter { $0.syncedAt == nil }
+    }
+
+    var hasUnsyncedRecords: Bool {
+        !unsyncedSessions.isEmpty || !unsyncedAudioSamples.isEmpty
+            || !unsyncedCrowdEstimates.isEmpty || !sessionsNeedingUpdate.isEmpty
+    }
+
+    func markSessionSynced(id: UUID) {
+        if let idx = sessions.firstIndex(where: { $0.id == id }) {
+            sessions[idx].syncedAt = .now
+        }
+        persistCurrentState()
+    }
+
+    func markAudioSamplesSynced(ids: Set<UUID>) {
+        for i in audioSamples.indices where ids.contains(audioSamples[i].id) {
+            audioSamples[i].syncedAt = .now
+        }
+        persistCurrentState()
+    }
+
+    func markCrowdEstimatesSynced(ids: Set<UUID>) {
+        for i in crowdEstimates.indices where ids.contains(crowdEstimates[i].id) {
+            crowdEstimates[i].syncedAt = .now
+        }
+        persistCurrentState()
+    }
+
+    // MARK: - Cafe Suggestions
+
     var previousCafeSuggestions: [String] {
         Array(Set(sessions.map(\.cafeName)))
             .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }

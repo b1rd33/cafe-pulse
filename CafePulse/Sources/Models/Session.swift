@@ -7,6 +7,7 @@ struct Session: Identifiable, Codable, Hashable, Sendable {
     var startedAt: Date
     var endedAt: Date?
     var tags: [String]
+    var syncedAt: Date?
 
     init(
         id: UUID = UUID(),
@@ -14,7 +15,8 @@ struct Session: Identifiable, Codable, Hashable, Sendable {
         location: String? = nil,
         startedAt: Date = .now,
         endedAt: Date? = nil,
-        tags: [String] = []
+        tags: [String] = [],
+        syncedAt: Date? = nil
     ) {
         self.id = id
         self.cafeName = cafeName
@@ -22,6 +24,7 @@ struct Session: Identifiable, Codable, Hashable, Sendable {
         self.startedAt = startedAt
         self.endedAt = endedAt
         self.tags = tags
+        self.syncedAt = syncedAt
     }
 
     var isActive: Bool {
