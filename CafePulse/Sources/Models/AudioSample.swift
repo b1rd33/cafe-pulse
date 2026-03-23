@@ -9,6 +9,20 @@ struct AudioSample: Identifiable, Codable, Hashable, Sendable {
     let voiceBandDB: Float
     let peakDB: Float
 
+    // Explicit CodingKeys because Swift's convertToSnakeCase
+    // splits "overallDB" → "overall_d_b" instead of "overall_db"
+    enum CodingKeys: String, CodingKey {
+        case id, sessionId = "session_id", timestamp
+        case overallDB = "overall_db"
+        case musicBandDB = "music_band_db"
+        case voiceBandDB = "voice_band_db"
+        case peakDB = "peak_db"
+        case spectralFlatness = "spectral_flatness"
+        case selfTalkDetected = "self_talk_detected"
+        case voiceBandVariance = "voice_band_variance"
+        case syncedAt = "synced_at"
+    }
+
     /// Spectral flatness of voice band (0=quiet/tonal, 1=noise-like/crowd babble).
     /// Automatic crowd density proxy — validates manual crowd estimates.
     let spectralFlatness: Float

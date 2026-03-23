@@ -25,3 +25,13 @@ targets:
         INFOPLIST_FILE: CafePulse/Config/Info.plist
         SWIFT_EMIT_LOC_STRINGS: YES
         ENABLE_HARDENED_RUNTIME: YES
+  CafePulseTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: CafePulse/Tests
+    dependencies:
+      - target: CafePulse
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES

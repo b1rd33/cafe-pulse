@@ -18,11 +18,11 @@ actor LocalStore {
         encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
-        encoder.keyEncodingStrategy = .convertToSnakeCase
+        // No key strategy — models use explicit CodingKeys for snake_case mapping
 
         decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        // No key strategy — models use explicit CodingKeys for snake_case mapping
     }
 
     func loadSnapshot() throws -> AppSnapshot {

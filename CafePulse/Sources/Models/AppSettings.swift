@@ -4,6 +4,11 @@ struct AppSettings: Codable, Equatable, Sendable {
     var sampleIntervalSeconds: Double = 5
     var crowdPromptIntervalSeconds: Double = 15 * 60
 
+    enum CodingKeys: String, CodingKey {
+        case sampleIntervalSeconds = "sample_interval_seconds"
+        case crowdPromptIntervalSeconds = "crowd_prompt_interval_seconds"
+    }
+
     static let `default` = AppSettings()
 }
 

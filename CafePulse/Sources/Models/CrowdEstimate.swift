@@ -35,6 +35,15 @@ struct CrowdEstimate: Identifiable, Codable, Hashable, Sendable {
     var peopleCount: Int?
     var syncedAt: Date?
 
+    enum CodingKeys: String, CodingKey {
+        case id
+        case sessionId = "session_id"
+        case timestamp
+        case fullness
+        case peopleCount = "people_count"
+        case syncedAt = "synced_at"
+    }
+
     init(
         id: UUID = UUID(),
         sessionId: UUID,
