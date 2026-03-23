@@ -1,0 +1,27 @@
+name: CafePulse
+options:
+  minimumXcodeGenVersion: 2.38.0
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "5.9"
+    INFOPLIST_FILE: CafePulse/Config/Info.plist
+    GENERATE_INFOPLIST_FILE: NO
+    CODE_SIGN_ENTITLEMENTS: CafePulse/Config/CafePulse.entitlements
+targets:
+  CafePulse:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: CafePulse/Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.christiannikolov.CafePulse
+        PRODUCT_NAME: CafePulse
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+        CODE_SIGN_ENTITLEMENTS: CafePulse/Config/CafePulse.entitlements
+        INFOPLIST_FILE: CafePulse/Config/Info.plist
+        SWIFT_EMIT_LOC_STRINGS: YES
+        ENABLE_HARDENED_RUNTIME: YES
